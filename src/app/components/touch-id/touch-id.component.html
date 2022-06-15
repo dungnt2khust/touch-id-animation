@@ -1,0 +1,44 @@
+<div
+  class="touch-id d-flex"
+  [class]="GetSide"
+  [class.moving]="isMoving"
+  [class.pin]="isPin"
+  [class.flex-row]="GetSide == 'top' || GetSide == 'bottom'"
+  [class.flex-column]="GetSide == 'right' || GetSide == 'left'"
+  [class.align-items-start]="GetSide == 'top' || GetSide == 'left'"
+  [class.align-items-end]="GetSide == 'bottom' || GetSide == 'right'"
+  #dragable
+  (mousedown)="mousedown($event)"
+>
+  <div
+    class="touch-id__collapse flex-center"
+    [class]="(SideCurr || 'Right').toLowerCase()"
+    [class.m-r-4]="GetSide == 'top' || GetSide == 'bottom'"
+    [class.m-b-4]="GetSide == 'right' || GetSide == 'left'"
+    [style.visibility]="isPin ? 'visible' : 'hidden'"
+    (mousedown)="mousedownCollapse()"
+    (mouseup)="mouseupCollapse()"
+  >
+    <i class="fa-solid fa-chevron-right icon--collapse"></i>
+  </div>
+  <div class="touch-id__main">
+    <div
+      #extend
+      class="touch-id__extend flex-center"
+      [class.horizontal]="GetSide == 'top' || GetSide == 'bottom'"
+      [class.vertical]="GetSide == 'left' || GetSide == 'right'"
+    >
+      <i class="fa-solid fa-chevron-left icon--extend"></i>
+    </div>
+    <div
+      class="touch-id__function flex-center"
+      title="Chat với nhân viên tư vấn"
+      [class.horizontal]="GetSide == 'top' || GetSide == 'bottom'"
+      [class.vertical]="GetSide == 'left' || GetSide == 'right'"
+      (mousedown)="mousedownFunction()"
+      (mouseup)="mouseupFunction()"
+    >
+      <i class="fa-solid fa-comment-dots"></i>
+    </div>
+  </div>
+</div>
