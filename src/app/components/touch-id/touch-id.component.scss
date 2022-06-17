@@ -1,5 +1,7 @@
 $color: #2566e9;
-
+#chat-widget-container {
+  display: none;
+}
 .flex-center {
   display: flex;
   align-items: center;
@@ -8,6 +10,7 @@ $color: #2566e9;
 
 .touch-id {
   position: fixed;
+  z-index: 2147483640;
   &:active {
     cursor: all-scroll;
   }

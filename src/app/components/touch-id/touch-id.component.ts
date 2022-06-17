@@ -1,15 +1,15 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 
 @Component({
-  selector: "app-touch-id",
-  templateUrl: "./touch-id.component.html",
-  styleUrls: ["./touch-id.component.scss"]
+  selector: 'app-touch-id',
+  templateUrl: './touch-id.component.html',
+  styleUrls: ['./touch-id.component.scss'],
 })
 export class TouchIDComponent implements OnInit {
-  @ViewChild("dragable", { read: ElementRef }) draggable: ElementRef;
-  @ViewChild("extend", { read: ElementRef }) extend: ElementRef;
+  @ViewChild('dragable', { read: ElementRef }) draggable: ElementRef;
+  @ViewChild('extend', { read: ElementRef }) extend: ElementRef;
 
-  @Input() Side: string = "Right";
+  @Input() Side: string = 'Right';
   @Input() Percent: number = 50;
 
   element: any;
@@ -26,30 +26,30 @@ export class TouchIDComponent implements OnInit {
     this.PercentCurr = this.Percent;
 
     // Sự kiện di chuột khắp màn hình
-    document.addEventListener("mousemove", (e) => {
+    document.addEventListener('mousemove', (e) => {
       if (this.isMoving) {
         this.clearSelection();
         var outWindow = this.edgeWindow(e);
         if (!outWindow.X) {
-          this.element.style.left = e.clientX - this.startX + "px";
-          this.element.style.right = "unset";
+          this.element.style.left = e.clientX - this.startX + 'px';
+          this.element.style.right = 'unset';
         }
         if (!outWindow.Y) {
-          this.element.style.top = e.clientY - this.startY + "px";
-          this.element.style.bottom = "unset";
+          this.element.style.top = e.clientY - this.startY + 'px';
+          this.element.style.bottom = 'unset';
         }
       }
     });
 
     // Sự kiện thay đổi độ rộng màn hình
-    window.addEventListener("resize", () => {
+    window.addEventListener('resize', () => {
       if (this.element) {
         this.setPosition();
       }
     });
 
     // Sự kiện nhấc chuột lên
-    document.addEventListener("mouseup", (e) => {
+    document.addEventListener('mouseup', (e) => {
       if (this.isMoving) {
         this.onStopMove();
       }
@@ -57,6 +57,8 @@ export class TouchIDComponent implements OnInit {
 
     // Đặt vị trí khởi tạo
     this.setPosition();
+
+    this.listenEvent();
   }
 
   ngOnInit() {
@@ -71,6 +73,47 @@ export class TouchIDComponent implements OnInit {
   collapseTimeout: any;
   modeFunction: string;
   functionTimeout: any;
+  isShowLiveChat = false;
+
+  listenEvent() {
+    let interval = setInterval(() => {
+      // @ts-ignore: Unreachable code error
+      if (window.LiveChatWidget) {
+        [
+          'ready',
+          'new_event',
+          'form_submitted',
+          'greeting_hidden',
+          'rating_submitted',
+          'visibility_changed',
+          'greeting_displayed',
+          'availability_changed',
+          'customer_status_changed',
+          'rich_message_button_clicked',
+        ].forEach((eventName) => {
+          // @ts-ignore: Unreachable code error
+          window.LiveChatWidget.on(eventName, (payload) => {
+            if (eventName == 'ready') {
+              // @ts-ignore: Unreachable code error
+
+              window.LiveChatWidget.call('hide');
+              (<HTMLElement>(
+                document.querySelector('#chat-widget-container')
+              )).style.display = 'block';
+            }
+            if (payload.visibility == 'minimized') {
+              setTimeout(() => {
+                // @ts-ignore: Unreachable code error
+                window.LiveChatWidget.call('hide');
+                this.isShowLiveChat = false;
+              }, 200);
+            }
+          });
+        });
+        clearInterval(interval);
+      }
+    }, 50);
+  }
 
   /**
    * Đặt vị trí
@@ -81,21 +124,21 @@ export class TouchIDComponent implements OnInit {
     this.removePosition(this.extendElement);
 
     switch (this.SideCurr) {
-      case "Top":
+      case 'Top':
         this.element.style.top = 0;
         this.extendElement.style.top = 0;
 
         break;
-      case "Bottom":
+      case 'Bottom':
         this.element.style.bottom = 0;
         this.extendElement.style.bottom = 0;
         break;
-      case "Right":
+      case 'Right':
         this.element.style.right = 0;
         this.extendElement.style.right = 0;
 
         break;
-      case "Left":
+      case 'Left':
         this.element.style.left = 0;
         this.extendElement.style.left = 0;
         break;
@@ -104,20 +147,20 @@ export class TouchIDComponent implements OnInit {
     }
     var rectElement = this.element.getBoundingClientRect();
 
-    if (this.SideCurr == "Top" || this.SideCurr == "Bottom") {
+    if (this.SideCurr == 'Top' || this.SideCurr == 'Bottom') {
       var left = (window.innerWidth * this.PercentCurr) / 100;
       if (left + rectElement.width >= window.innerWidth) {
         this.element.style.right = 0;
         this.extendElement.style.right = 0;
       } else {
-        this.element.style.left = left + "px";
-        this.extendElement.style.left = left + "px";
+        this.element.style.left = left + 'px';
+        this.extendElement.style.left = left + 'px';
       }
     } else {
       this.element.style.top =
-        (window.innerHeight * this.PercentCurr) / 100 + "px";
+        (window.innerHeight * this.PercentCurr) / 100 + 'px';
       this.extendElement.style.top =
-        (window.innerHeight * this.PercentCurr) / 100 + "px";
+        (window.innerHeight * this.PercentCurr) / 100 + 'px';
     }
     this.isMoving = false;
   }
@@ -126,7 +169,7 @@ export class TouchIDComponent implements OnInit {
     if (this.SideCurr) {
       return this.SideCurr.toLowerCase();
     } else {
-      return "right";
+      return 'right';
     }
   }
 
@@ -146,30 +189,46 @@ export class TouchIDComponent implements OnInit {
    */
 
   mousedownCollapse() {
-    this.modeCollapse = "click";
+    this.modeCollapse = 'click';
     clearTimeout(this.collapseTimeout);
     this.collapseTimeout = setTimeout(() => {
-      this.modeCollapse = "move";
+      this.modeCollapse = 'move';
     }, 100);
   }
 
   mouseupCollapse() {
-    if (this.modeCollapse == "click") {
+    if (this.modeCollapse == 'click') {
       this.isPin = false;
     }
   }
   mousedownFunction() {
-    this.modeFunction = "click";
+    this.modeFunction = 'click';
     clearTimeout(this.functionTimeout);
     this.functionTimeout = setTimeout(() => {
-      this.modeFunction = "move";
+      this.modeFunction = 'move';
     }, 200);
   }
 
   mouseupFunction() {
-    console.log(this.modeFunction);
-    if (this.modeFunction == "click") {
+    if (this.modeFunction == 'click') {
       this.isPin = true;
+      if (this.isShowLiveChat) {
+        // @ts-ignore: Unreachable code error
+        window.LiveChatWidget.call('hide');
+        this.isShowLiveChat = false;
+      } else {
+        (<HTMLElement>(
+          document.querySelector('#chat-widget-container')
+        )).style.display = 'none';
+        // @ts-ignore: Unreachable code error
+        window.LiveChatWidget.call('maximize');
+        setTimeout(() => {
+          (<HTMLElement>(
+            document.querySelector('#chat-widget-container')
+          )).style.display = 'block';
+          this.isShowLiveChat = true;
+        }, 50);
+      }
     }
   }
 
@@ -180,24 +239,24 @@ export class TouchIDComponent implements OnInit {
   onStopMove() {
     var rectElement = this.element.getBoundingClientRect();
     var PercentTop = Number.parseFloat(
-      rectElement.top / window.innerHeight + ""
+      rectElement.top / window.innerHeight + ''
     ).toFixed(5);
     var PercentLeft = Number.parseFloat(
-      rectElement.left / window.innerWidth + ""
+      rectElement.left / window.innerWidth + ''
     ).toFixed(5);
 
     if (rectElement.top <= this.offsetVertical) {
-      this.SideCurr = "Top";
+      this.SideCurr = 'Top';
       this.PercentCurr = Number(PercentLeft) * 100;
     } else if (window.innerHeight - rectElement.bottom <= this.offsetVertical) {
-      this.SideCurr = "Bottom";
+      this.SideCurr = 'Bottom';
       this.PercentCurr = Number(PercentLeft) * 100;
     } else {
       if (Number(PercentLeft) < 0.5) {
-        this.SideCurr = "Left";
+        this.SideCurr = 'Left';
         this.PercentCurr = Number(PercentTop) * 100;
       } else {
-        this.SideCurr = "Right";
+        this.SideCurr = 'Right';
         this.PercentCurr = Number(PercentTop) * 100;
       }
     }
@@ -256,6 +315,6 @@ export class TouchIDComponent implements OnInit {
    * createdby ntdung5 13.06.2022
    */
   removePosition(element) {
-    element.style.inset = "unset";
+    element.style.inset = 'unset';
   }
 }
